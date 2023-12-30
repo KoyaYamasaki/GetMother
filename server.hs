@@ -10,7 +10,7 @@ main :: IO ()
 main = Warp.run 8000 router
 
 router :: Wai.Application
-router req res =
+router req =
   case Wai.pathInfo req of
     []             -> mainPage req
     ["getMother"]  -> getMother req
