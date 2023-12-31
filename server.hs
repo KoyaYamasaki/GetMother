@@ -1,35 +1,63 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
 
 import System.Random
-import qualified Network.Wai.Handler.Warp as Warp
-import qualified Network.Wai as Wai
-import qualified Network.HTTP.Types as HTypes
+import Network.Wai
+import Network.HTTP.Types
+import Network.Wai.Handler.Warp (run)
+import qualified Data.ByteString.Lazy as LBS
+
+app :: Application
+app request respond = do
+    case pathInfo request of
+        [] -> serveHtml "index.html" respond
+        ["getMother"] -> getMother respond
+        ["getMary"] -> getMary respond
+        _ -> handle404 respond
+
+serveHtml :: FilePath -> (Response -> IO ResponseReceived) -> IO ResponseReceived
+serveHtml filePath respond = do
+    -- content <- BS.readFile filePath
+    content <- LBS.readFile filePath
+    let response = responseLBS
+            status200
+            [("Content-Type", "text/html")]
+            content
+    respond response
+
+getMother :: (Response -> IO ResponseReceived) -> IO ResponseReceived
+getMother respond = do
+    randomNum <- randomNumber 5
+    let randomImage = "images/mother/mother" ++ show randomNum ++ ".jpg"
+    content <- LBS.readFile randomImage
+    let response = responseLBS
+            status200
+            [("Content-Type", "image/jpeg")]
+            content
+    respond response
+
+getMary :: (Response -> IO ResponseReceived) -> IO ResponseReceived
+getMary respond = do
+    randomNum <- randomNumber 6
+    let randomImage = "images/mary/mary" ++ show randomNum ++ ".jpg"
+    content <- LBS.readFile randomImage
+    let response = responseLBS
+            status200
+            [("Content-Type", "image/jpeg")]
+            content
+    respond response
+
+handle404 :: (Response -> IO ResponseReceived) -> IO ResponseReceived
+handle404 respond = do
+    let response = responseLBS
+            status404
+            [("Content-Type", "text/html")]
+            "<!DOCTYPE html><html><head><title>Not Found</title></head><body><h1>404 - Not Found</h1></body></html>"
+    respond response
 
 main :: IO ()
-main = Warp.run 8000 router
+main = do
+    putStrLn "Starting server on http://localhost:8000"
+    run 8000 app
 
-router :: Wai.Application
-router req =
-  case Wai.pathInfo req of
-    []             -> mainPage req
-    ["getMother"]  -> getMother req
-    _              -> notFoundApp req
-
-mainPage :: Wai.Application
-mainPage req send 
-  = send $ Wai.responseFile HTypes.status200 [(HTypes.hContentType, "text/html")] "index.html" Nothing
-
-getMother :: Wai.Application
-getMother req send
-  = send $ Wai.responseFile HTypes.status200 [(HTypes.hContentType, "image/jpeg")] "images/mother1.jpg" Nothing
-
-notFoundApp :: Wai.Application
-notFoundApp req send
-  = send $ Wai.responseBuilder HTypes.status404 [] "not found"
-
--- getMotherImage :: String
--- getMotherImage =
---     "images/mother" ++ getImageNumber getStdGen ++ ".jpg"
-
--- getImageNumber gen = show $ take 1 $ randomRs ('1', '5') gen
+randomNumber :: Int -> IO Int
+randomNumber range = randomRIO (1, range)
