@@ -5,18 +5,22 @@ import Network.Wai
 import Network.HTTP.Types
 import Network.Wai.Handler.Warp (run)
 import qualified Data.ByteString.Lazy as LBS
+import qualified Data.ByteString.Char8 (ByteString, unpack)
+
+type ContentType = String
 
 app :: Application
 app request respond = do
     case pathInfo request of
-        [] -> serveHtml "index.html" respond
-        ["getMother"] -> getMother respond
-        ["getMary"] -> getMary respond
+        [] -> serveResponse "index.html" "text/html" respond
+        -- ["mother"] -> getMother request respond
+        ["motherlist"] -> serveResponse "metadata/mother.json" "application/json" respond
+        ["randommother"] -> getRandomMother respond
+        ["randommary"] -> getRandomMary respond
         _ -> handle404 respond
 
-serveHtml :: FilePath -> (Response -> IO ResponseReceived) -> IO ResponseReceived
-serveHtml filePath respond = do
-    -- content <- BS.readFile filePath
+serveResponse :: FilePath -> ContentType -> (Response -> IO ResponseReceived) -> IO ResponseReceived
+serveResponse filePath contentType respond = do
     content <- LBS.readFile filePath
     let response = responseLBS
             status200
@@ -24,8 +28,21 @@ serveHtml filePath respond = do
             content
     respond response
 
-getMother :: (Response -> IO ResponseReceived) -> IO ResponseReceived
-getMother respond = do
+-- getMother :: Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
+-- getMother request respond = do
+--     let qs = queryString request
+--     let imageId = maybe "1" BS.unpack $ join $ lookup "id" qs 
+--         in responseMotherImage status200 [("Content-Type", "image/jpeg")] (LBS.pack $ "images/mother/mother" ++ imageId ++ ".jpg")
+--     let imagePath = "images/mother/mother" ++ imageId ++ ".jpg"
+--     content <- LBS.readFile randomImage
+--     let response = responseLBS
+--             status200
+--             [("Content-Type", "image/jpeg")]
+--             imagePath
+--     respond response
+
+getRandomMother :: (Response -> IO ResponseReceived) -> IO ResponseReceived
+getRandomMother respond = do
     randomNum <- randomNumber 5
     let randomImage = "images/mother/mother" ++ show randomNum ++ ".jpg"
     content <- LBS.readFile randomImage
@@ -35,8 +52,8 @@ getMother respond = do
             content
     respond response
 
-getMary :: (Response -> IO ResponseReceived) -> IO ResponseReceived
-getMary respond = do
+getRandomMary :: (Response -> IO ResponseReceived) -> IO ResponseReceived
+getRandomMary respond = do
     randomNum <- randomNumber 6
     let randomImage = "images/mary/mary" ++ show randomNum ++ ".jpg"
     content <- LBS.readFile randomImage
@@ -61,3 +78,9 @@ main = do
 
 randomNumber :: Int -> IO Int
 randomNumber range = randomRIO (1, range)
+
+-- maybeByteStringToString :: Maybe ByteString -> String
+-- maybeByteStringToString maybeBS =
+--     case maybeBS of
+--         Just bs -> unpack bs
+--         maybe -> "1"
