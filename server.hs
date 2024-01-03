@@ -5,7 +5,8 @@ import Network.Wai
 import Network.HTTP.Types
 import Network.Wai.Handler.Warp (run)
 import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Char8 (ByteString, unpack)
+import qualified Data.ByteString.Char8 as C8BS
+import Data.Maybe (fromMaybe)
 
 type ContentType = String
 
@@ -13,7 +14,7 @@ app :: Application
 app request respond = do
     case pathInfo request of
         [] -> serveResponse "index.html" "text/html" respond
-        -- ["mother"] -> getMother request respond
+        ["mother"] -> getMother request respond
         ["motherlist"] -> serveResponse "metadata/mother.json" "application/json" respond
         ["randommother"] -> getRandomMother respond
         ["randommary"] -> getRandomMary respond
@@ -28,18 +29,17 @@ serveResponse filePath contentType respond = do
             content
     respond response
 
--- getMother :: Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
--- getMother request respond = do
---     let qs = queryString request
---     let imageId = maybe "1" BS.unpack $ join $ lookup "id" qs 
---         in responseMotherImage status200 [("Content-Type", "image/jpeg")] (LBS.pack $ "images/mother/mother" ++ imageId ++ ".jpg")
---     let imagePath = "images/mother/mother" ++ imageId ++ ".jpg"
---     content <- LBS.readFile randomImage
---     let response = responseLBS
---             status200
---             [("Content-Type", "image/jpeg")]
---             imagePath
---     respond response
+getMother :: Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
+getMother request respond = do
+    let defaultVal = Just $ C8BS.pack "1" 
+    let mQueryString = fromMaybe defaultVal $ Prelude.lookup "id" $ queryString request
+    let imagePath = "images/mother/mother" ++ maybeByteStringToString mQueryString ++ ".jpg"
+    content <- LBS.readFile imagePath
+    let response = responseLBS
+            status200
+            [("Content-Type", "image/jpeg")]
+            content
+    respond response
 
 getRandomMother :: (Response -> IO ResponseReceived) -> IO ResponseReceived
 getRandomMother respond = do
@@ -79,8 +79,8 @@ main = do
 randomNumber :: Int -> IO Int
 randomNumber range = randomRIO (1, range)
 
--- maybeByteStringToString :: Maybe ByteString -> String
--- maybeByteStringToString maybeBS =
---     case maybeBS of
---         Just bs -> unpack bs
---         maybe -> "1"
+maybeByteStringToString :: Maybe C8BS.ByteString -> String
+maybeByteStringToString maybeBS =
+    case maybeBS of
+        Just bs -> C8BS.unpack bs
+        maybe -> "1"
