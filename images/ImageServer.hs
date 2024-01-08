@@ -1,8 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import System.Random
+import System.Random ( randomRIO )
 import Network.Wai
-import Network.HTTP.Types
+    ( responseLBS,
+      Application,
+      Request(queryString, pathInfo),
+      Response,
+      Middleware,
+      ResponseReceived)      
+import Network.HTTP.Types ( status200, status404 )
 import Network.Wai.Handler.Warp (run)
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString.Char8 as C8BS
@@ -37,7 +43,8 @@ getMother request respond = do
     content <- LBS.readFile imagePath
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"),
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
@@ -48,7 +55,8 @@ getRandomMother respond = do
     content <- LBS.readFile randomImage
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"), 
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
@@ -59,7 +67,8 @@ getRandomMary respond = do
     content <- LBS.readFile randomImage
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"),
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
