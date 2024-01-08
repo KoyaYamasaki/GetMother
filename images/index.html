@@ -1,31 +1,31 @@
-<!DOCTYPE>
+<!DOCTYPE >
 <html lang="ja">
-    <meta charset="utf-8">
-    <head>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    </head>
-    <body>
-        <div>
-            <button type="button" name="name" value="value" onclick="getMother()">お母さんいいですか？</button>
-        </div>
-        <script>
-            function getMother() {
-                console.log("Hello world!");
-                const url='http://localhost:8000/getMother';
+  <meta charset="utf-8" />
+  <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  </head>
+  <body>
+    <div>
+      <button type="button" name="name" value="value" onclick="getMother()">お母さんいいですか？</button>
+    </div>
+    <script>
+      function getMother() {
+        console.log("Hello world!");
+        const url = "http://localhost:8000/randommother";
 
-                var data;
-                fetch(url).then(response => {
-                        response.blob().then(blobResponse => {
-                        data = blobResponse;
-                        var outputImg = document.createElement('img');
-                        const urlCreator = window.URL || window.webkitURL;
-                        outputImg.src = urlCreator.createObjectURL(data);
-                        outputImg.style.width = "300px";
-                        outputImg.style.height = "500px";
-                        document.body.appendChild(outputImg);
-                    })
-                });
-            }
-        </script>
-    </body>
+        var data;
+        fetch(url).then((response) => {
+          response.blob().then((blobResponse) => {
+            data = blobResponse;
+            var outputImg = document.createElement("img");
+            const urlCreator = window.URL || window.webkitURL;
+            outputImg.src = urlCreator.createObjectURL(data);
+            outputImg.style.width = "300px";
+            outputImg.style.height = "500px";
+            document.body.appendChild(outputImg);
+          });
+        });
+      }
+    </script>
+  </body>
 </html>
