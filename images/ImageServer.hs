@@ -1,14 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import System.Random ( randomRIO )
+import System.Random
 import Network.Wai
-    ( responseLBS,
-      Application,
-      Request(queryString, pathInfo),
-      Response,
-      Middleware,
-      ResponseReceived)      
-import Network.HTTP.Types ( status200, status404 )
+import Network.HTTP.Types
 import Network.Wai.Handler.Warp (run)
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString.Char8 as C8BS
