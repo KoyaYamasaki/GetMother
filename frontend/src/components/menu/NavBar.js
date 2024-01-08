@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Box, Flex, Text, Button, Stack } from "@chakra-ui/react";
 
 import { ReactComponent as Logo } from "./mother-icon.svg";
 
 const NavBar = (props) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
 
   return (
     <NavBarContainer {...props}>
-      <Logo width="72" height="72"/>
+      <Logo width="48" height="48"/>
       <MenuToggle toggle={toggle} isOpen={isOpen} />
       <MenuLinks isOpen={isOpen} />
     </NavBarContainer>
@@ -46,12 +46,10 @@ const MenuToggle = ({ toggle, isOpen }) => {
   );
 };
 
-const MenuItem = ({ children, isLast, to = "/", ...rest }) => {
+const MenuItem = ({to = "/", ...rest }) => {
   return (
     <Link href={to}>
-      <Text display="block" {...rest}>
-        {children}
-      </Text>
+      <Text display="block" {...rest} />
     </Link>
   );
 };
@@ -70,7 +68,7 @@ const MenuLinks = ({ isOpen }) => {
         <MenuItem to="/">Home</MenuItem>
         <MenuItem to="/top">Top</MenuItem>
         <MenuItem to="/about">About</MenuItem>
-        <MenuItem to="/signup" isLast>
+        <MenuItem to="/login" isLast>
           <Button
             size="sm"
             rounded="md"

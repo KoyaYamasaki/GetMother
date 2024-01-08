@@ -37,7 +37,8 @@ getMother request respond = do
     content <- LBS.readFile imagePath
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"),
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
@@ -48,7 +49,8 @@ getRandomMother respond = do
     content <- LBS.readFile randomImage
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"), 
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
@@ -59,7 +61,8 @@ getRandomMary respond = do
     content <- LBS.readFile randomImage
     let response = responseLBS
             status200
-            [("Content-Type", "image/jpeg")]
+            [("Content-Type", "image/jpeg"),
+            ("Access-Control-Allow-Origin", "*,*")]
             content
     respond response
 
