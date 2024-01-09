@@ -48,7 +48,7 @@ app request respond = do
 
 serveResponse :: FilePath -> String -> (Network.Wai.Response -> IO ResponseReceived) -> IO ResponseReceived
 serveResponse filePath contentType respond = do
-    setEnv "key" "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"
+    setEnv "key" ""
     manager <- newManager tlsManagerSettings
     apiKey <- T.pack <$> getEnv "key"
         -- create a openai client that automatically retries up to 4 times on network
