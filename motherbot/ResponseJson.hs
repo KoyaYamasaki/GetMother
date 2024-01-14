@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module ResponseJson (
+  CompletionDict(..),
   Completion(..),
   Choice(..),
   Delta(..)
 ) where
 
+import GHC.Generics (Generic)
 import Data.Aeson
 import Data.Text
 import Control.Applicative
@@ -13,6 +15,15 @@ import qualified Data.ByteString.Lazy as B
 
 import GHC.SysTools.Ar (ArchiveEntry(filename))
 import Data.ByteString (ByteString)
+
+data CompletionDict = CompletionDict {
+  completion :: Completion
+} deriving Show
+
+instance FromJSON CompletionDict where
+  parseJSON (Object v) =
+    CompletionDict <$> v .: "data"
+  parseJSON _ = mzero
 
 -- 返却されるデータ型
 data Completion = Completion {
@@ -50,7 +61,7 @@ instance FromJSON Choice where
   parseJSON _ = mzero
 
 data Delta = Delta {
-  role :: Text,
+  role :: Maybe Text,
   content :: Text
 } deriving Show
 
