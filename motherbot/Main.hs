@@ -82,4 +82,4 @@ main = do
     run 8001 app
 
 -- APIキーの設定
-myApiKey = "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"
+myApiKey = ""
