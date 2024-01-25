@@ -67,6 +67,6 @@ data Delta = Delta {
 
 instance FromJSON Delta where
   parseJSON (Object v) =
-    Delta <$> v .: "role"
+    Delta <$> v .:? "role"
           <*> v .: "content"
   parseJSON _ = mzero

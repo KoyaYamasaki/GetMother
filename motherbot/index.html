@@ -1,0 +1,92 @@
+<!DOCTYPE >
+<html lang="ja">
+  <meta charset="utf-8" />
+  <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  </head>
+  <body>
+    <div>
+      <button type="button" name="name" value="value" onclick="getMother()">お母さんいいですか？</button>
+      <p id="data-container"></p>
+    </div>
+    <script>
+      // // EventSource インスタンスを作成
+      // const eventSource = new EventSource('http://localhost:8001/motherbot');
+
+      // // イベントが届いたときの処理を定義
+      // eventSource.onmessage = function(event) {
+      //     // event.data にサーバーからのデータが含まれています
+      //     console.log('New message:', event.data);
+
+      //     // 必要に応じてデータをHTMLに表示
+      //     const dataContainer = document.getElementById('data-container');
+      //     dataContainer.textContent += event.data + '\n';
+      // };
+
+      // エラーが発生したときの処理を定義
+      eventSource.onerror = function (error) {
+        console.error("EventSource failed:", error);
+        eventSource.close(); // エラーが発生した場合は接続を閉じる
+      };
+      function getMother() {
+        console.log("Hello world!");
+        const url = "http://localhost:8001/motherbot";
+
+        fetch(url)
+          // .then(response => response.text())
+          .then((response) => {
+            // var outputData = document.createElement('data-container');
+            // outputData.textContent = data;
+            // console.log(data)
+            // document.body.appendChild(outputData);
+            const reader = response.body.getReader();
+            const stream = new ReadableStream({
+              start(controller) {
+                function read() {
+                  reader
+                    .read()
+                    .then(({ done, value }) => {
+                      if (done) {
+                        controller.close();
+                        return;
+                      }
+                      // チャンクをテキストに変換
+                      const text = new TextDecoder().decode(value);
+                      const arr = text.split("data: ");
+                      arr.forEach(function (element) {
+                        if (element == "") {
+                          return;
+                        }
+                        console.log("ARRAYY!!!", element);
+                        let jsonData = JSON.stringify(element);
+                        console.log("jsonData!!!", jsonData);
+                        const obj = JSON.parse(jsonData);
+                        const obj2 = JSON.parse(obj);
+                        console.log(typeof obj2);
+                        console.log("obj!!!", obj2.choices[0].delta.content);
+                        // let objData = JSON.parse(jsonData);
+                        // console.log("JSON!!!", jsonData);
+                      });
+                      //   let newstr = text.replace("data: ", "");
+                      //   console.log("RESPONSE!!!", newstr);
+                      // HTMLにチャンクを表示
+                      const dataContainer = document.getElementById("data-container");
+                      dataContainer.textContent += text;
+                      read();
+                    })
+                    .catch((error) => {
+                      console.error("ストリームの読み込み中にエラーが発生しました:", error);
+                      controller.error(error);
+                      controller.close();
+                    });
+                }
+                read();
+              },
+            });
+            return new Response(stream);
+          })
+          .catch((error) => console.error("エラーが発生しました:", error));
+      }
+    </script>
+  </body>
+</html>
