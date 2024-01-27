@@ -6,7 +6,7 @@
   </head>
   <body>
     <div>
-      <button type="button" name="name" value="value" onclick="getMother()">お母さんいいですか？</button>
+      <button type="button" name="name" value="value" onclick="getMother()">お母さん、年金の仕組みを教えて</button>
       <p id="data-container"></p>
     </div>
     <script>
@@ -40,6 +40,7 @@
             // console.log(data)
             // document.body.appendChild(outputData);
             const reader = response.body.getReader();
+            var msgFragment = "";
             const stream = new ReadableStream({
               start(controller) {
                 function read() {
@@ -58,20 +59,22 @@
                           return;
                         }
                         console.log("ARRAYY!!!", element);
-                        let jsonData = JSON.stringify(element);
-                        console.log("jsonData!!!", jsonData);
-                        const obj = JSON.parse(jsonData);
-                        const obj2 = JSON.parse(obj);
-                        console.log(typeof obj2);
-                        console.log("obj!!!", obj2.choices[0].delta.content);
-                        // let objData = JSON.parse(jsonData);
-                        // console.log("JSON!!!", jsonData);
+                        try {
+                          var jsonStr = element
+                          if (msgFragment != "") {
+                            jsonStr = msgFragment + element
+                            msgFragment = ""
+                          }
+                          console.log("json str!!!", jsonStr);
+                          const obj = JSON.parse(jsonStr);
+                          console.log("output msg: ", obj.choices[0].delta.content);
+                          const dataContainer = document.getElementById("data-container");
+                          dataContainer.textContent += obj.choices[0].delta.content;
+	                      } catch (error) {
+                          msgFragment = jsonStr
+		                      return;
+	                      }
                       });
-                      //   let newstr = text.replace("data: ", "");
-                      //   console.log("RESPONSE!!!", newstr);
-                      // HTMLにチャンクを表示
-                      const dataContainer = document.getElementById("data-container");
-                      dataContainer.textContent += text;
                       read();
                     })
                     .catch((error) => {
